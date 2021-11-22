@@ -78,5 +78,55 @@ app.post('/api/userExists', async (req, res, next) =>
 
 });
 
+app.post('/api/registerUser', async (req, res, next) =>
+{
+    // inc: username, password, email
+    // out: error
+    var error = "0";
+    const { username, password, email } = req.body;
+    const assets = new Array(20).fill(false);
+    assets[0] = true;
+    const db = client.db();
+    const feed = { username : username, password: password, email : email, coins : 0, topscore : 0, assets : assets}
+    if (!(username == null || password == null || email == null))
+    {
+        db.collection('Users').insertOne(feed, function (err, res) {
+            if (err) error = "1"
+        });
+    } else { error = "1"}
+    var ret = { error: error };
+    res.status(200).json(ret);
+});
 
+app.post('/api/changeUser', async (req, res, next)=>
+{
+    //inc: username, password, newUsername
+    //out: error
+    var error = "0";
+    const {username, password, newUsername} = req.body;
+    const db = client.db();
+    if(newUsername != null)
+    { 
+        const results = db.collection('Users').updateOne({username:username, password:password},
+                                        { $set: { username: newUsername }});
+        if((await results).matchedCount == 0) error = '1';
+    }
+    const ret = { error: error }
+    res.status(200).json(ret)
+});
+
+app.post('/api/changePassword', async (req, res, next) => {
+    //inc: username, password, newPass
+    //out: error
+    var error = "0";
+    const { username, password, newPass } = req.body;
+    const db = client.db();
+    if (newPass != null) {
+        const results = db.collection('Users').updateOne({ username: username, password: password },
+            { $set: { password: newPass } });
+        if ((await results).matchedCount == 0) error = '1';
+    }
+    const ret = { error: error }
+    res.status(200).json(ret)
+});
 app.listen(PORT, () => { console.log('Server listening on port ' + PORT); }); // start Node + Express server on port 5000
