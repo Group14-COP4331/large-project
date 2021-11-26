@@ -87,7 +87,8 @@ app.post('/api/registerUser', async (req, res, next) =>
     const assets = new Array(20).fill(false);
     assets[0] = true;
     const db = client.db();
-    const feed = { username : username, password: password, email : email, coins : 0, topscore : 0, assets : assets}
+    const feed = { username : username, password: password, email : email, coins : 0, topscore : 0, 
+                   assets : assets, verified : false, verifyCode : null}
     if (!(username == null || password == null || email == null))
     {
         db.collection('Users').insertOne(feed, function (err, res) {
@@ -128,5 +129,58 @@ app.post('/api/changePassword', async (req, res, next) => {
     }
     const ret = { error: error }
     res.status(200).json(ret)
+});
+
+app.post('/api/sendEmail', async (req, res, next) =>{
+    // inc: email
+    //out: error
+    var nodemailer = require('nodemailer');
+    var error = '0';
+    const { email } = req.body;
+    const db = client.db();
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'dungeonride@gmail.com',
+            pass: process.env.EMAIL_PASS,
+        }
+    });
+    const code = Math.floor(1000 + Math.random() * 9000);
+    var mailOptions = {
+        from: 'dungeonride@gmail.com',
+        to: email,
+        subject: 'Your Code Contained Here ',
+        text: code.toString(),
+    };
+    const results = db.collection('Users').updateOne({ email: email},
+        { $set: { verifyCode: code } });
+    if ((await results).matchedCount == 0) error = '1';
+
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+            error = '1';
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+    const ret = { error: error }
+    res.status(200).json(ret);
+});
+app.post('/api/verifyCode', async (req, res, next) => {
+    // inc: username, verifyCode
+    //out: error
+    const { username, verifyCode } = req.body;
+    var error = '0';
+    const db = client.db();
+    console.log(typeof verifyCode);
+    const results = await db.collection('Users').findOneAndUpdate({username: username, verifyCode : verifyCode}, {$set: {verifyCode:null, verified:true},
+                    function(err,doc){
+                        if (err) { throw err };
+                    }});
+    console.log(results);
+    if (results.lastErrorObject.updatedExisting == false) {error = '1'};
+    const ret = {error : error}
+    res.status(200).json(ret);
 });
 app.listen(PORT, () => { console.log('Server listening on port ' + PORT); }); // start Node + Express server on port 5000
