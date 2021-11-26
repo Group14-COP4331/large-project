@@ -149,7 +149,7 @@ app.post('/api/sendEmail', async (req, res, next) =>{
     var mailOptions = {
         from: 'dungeonride@gmail.com',
         to: email,
-        subject: 'Your Code Contained Here ',
+        subject: 'Your Code Contained Here 😌',
         text: code.toString(),
     };
     const results = db.collection('Users').updateOne({ email: email},
