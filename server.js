@@ -173,12 +173,10 @@ app.post('/api/verifyCode', async (req, res, next) => {
     const { username, verifyCode } = req.body;
     var error = '0';
     const db = client.db();
-    console.log(typeof verifyCode);
     const results = await db.collection('Users').findOneAndUpdate({username: username, verifyCode : verifyCode}, {$set: {verifyCode:null, verified:true},
                     function(err,doc){
                         if (err) { throw err };
                     }});
-    console.log(results);
     if (results.lastErrorObject.updatedExisting == false) {error = '1'};
     const ret = {error : error}
     res.status(200).json(ret);
