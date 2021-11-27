@@ -19,6 +19,7 @@ require('dotenv').config();
 
 const url = process.env.MONGODB_URL;
 const MongoClient = require('mongodb').MongoClient;
+const { debug } = require('console');
 const client = new MongoClient(url);
 client.connect();
 app.use((req, res, next) => {
@@ -128,6 +129,41 @@ app.post('/api/changePassword', async (req, res, next) => {
         if ((await results).matchedCount == 0) error = '1';
     }
     const ret = { error: error }
+    res.status(200).json(ret)
+});
+
+app.post('/api/populateLeaderboard', async (req, res, next) => {
+    //inc: none
+    //out: error
+    var error = "0";
+    const db = client.db();
+    const results = await db.collection('Users').find().sort({topscore: -1}).limit(10).toArray();
+    
+    var topscore = 0;
+    var username = "";
+    var position = 0;
+    await db.collection('Leaderboard').deleteMany({});
+    for (let i = 0; i < 10; i++) {
+        topscore = results[i].topscore;
+        username = results[i].username;
+        position = i+1;
+        const feed = {position : position, username : username, score : topscore};
+        db.collection('Leaderboard').insertOne(feed, function(err, res){
+            if (err) error = "1"
+        });
+    }
+    const ret = { error: error }
+    res.status(200).json(ret)
+});
+
+app.get('/api/getLeaderboard', async (req, res, next) => {
+    //inc: none
+    //out: leaderboard, error
+    var error = "0";
+    const db = client.db();
+    const results = await db.collection('Leaderboard').find().sort({position: 1}).toArray();
+    
+    const ret = { leaderboard: results, error: error }
     res.status(200).json(ret)
 });
 
