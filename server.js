@@ -20,6 +20,7 @@ require('dotenv').config();
 const url = process.env.MONGODB_URL;
 const MongoClient = require('mongodb').MongoClient;
 const { debug } = require('console');
+const { ObjectId } = require('mongodb');
 const client = new MongoClient(url);
 client.connect();
 app.use((req, res, next) => {
@@ -117,6 +118,26 @@ app.post('/api/changeUser', async (req, res, next)=>
     res.status(200).json(ret)
 });
 
+app.post('/api/getUserGameInfo', async (req, res, next)=>
+{
+    //inc: id
+    //out: all user data, error
+    var error = "0";
+    const {id} = req.body;
+    const db = client.db();
+    var results = '';
+    if(id != null)
+    { 
+        results = await db.collection('Users').find({_id : ObjectId(id)}, {projection : {_id : 0, coins: 1, topscore: 1, assets:1, }}).toArray();
+        if(results.matchedCount == 0) error = 'No users found with that id';
+    }
+    else {
+        error = 'Invalid input'
+    }
+    const ret = {user : results, error: error }
+    res.status(200).json(ret)
+});
+
 app.post('/api/changePassword', async (req, res, next) => {
     //inc: username, password, newPass
     //out: error
@@ -161,7 +182,7 @@ app.post('/api/getLeaderboard', async (req, res, next) => {
     //out: leaderboard, error
     var error = "0";
     const db = client.db();
-    const results = await db.collection('Leaderboard').find().sort({position: 1}).toArray();
+    const results = await db.collection('Leaderboard').find({}, {projection : {_id : 0}}).sort({position: 1}).toArray();
     
     const ret = { leaderboard: results, error: error }
     res.status(200).json(ret)
