@@ -156,7 +156,7 @@ app.post('/api/populateLeaderboard', async (req, res, next) => {
     res.status(200).json(ret)
 });
 
-app.get('/api/getLeaderboard', async (req, res, next) => {
+app.post('/api/getLeaderboard', async (req, res, next) => {
     //inc: none
     //out: leaderboard, error
     var error = "0";
