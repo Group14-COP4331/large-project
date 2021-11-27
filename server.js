@@ -138,6 +138,40 @@ app.post('/api/getUserGameInfo', async (req, res, next)=>
     res.status(200).json(ret)
 });
 
+app.post('/api/addUserGameSession', async (req, res, next)=>
+{
+    //inc: id, score
+    //out: error
+    var error = "0";
+    const {id, score} = req.body;
+    const db = client.db();
+    var results = '';
+    if(id != null)
+    { 
+        results = await db.collection('Users').find({_id : ObjectId(id)}).toArray();
+    
+        if (score > results[0].topscore) {
+            await db.collection('Users').updateOne({_id : ObjectId(id)}, {$set : {topscore : score}});
+            var leaderboardArr = await db.collection('Leaderboard').find().sort({position : 1}).toArray();
+            var tmpUsername = results[0].username;
+            var tmpScore = score;
+            for (let i = 0; i < 10; i++) {
+                if (tmpScore > leaderboardArr[i].score) {
+                    await db.collection('Leaderboard').updateOne({_id : leaderboardArr[i]._id}, { $set : {username : tmpUsername, score : tmpScore}});
+                    tmpUsername = leaderboardArr[i].username;
+                    tmpScore = leaderboardArr[i].score;
+                }
+            }
+        }
+            
+    }
+    else {
+        error = 'Invalid input';
+    }
+    const ret = {error: error }
+    res.status(200).json(ret)
+});
+
 app.post('/api/changePassword', async (req, res, next) => {
     //inc: username, password, newPass
     //out: error
