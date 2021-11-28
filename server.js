@@ -170,13 +170,13 @@ app.post('/api/addUserGameSession', async (req, res, next)=>
 });
 
 app.post('/api/changePassword', async (req, res, next) => {
-    //inc: username, password, newPass
+    //inc: username, newPass
     //out: error
     var error = "0";
-    const { username, password, newPass } = req.body;
+    const { username, newPass } = req.body;
     const db = client.db();
     if (newPass != null) {
-        const results = db.collection('Users').updateOne({ username: username, password: password },
+        const results = db.collection('Users').updateOne({ username: username },
             { $set: { password: newPass } });
         if ((await results).matchedCount == 0) error = '1';
     }
