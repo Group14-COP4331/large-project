@@ -19,6 +19,8 @@ require('dotenv').config();
 
 const url = process.env.MONGODB_URL;
 const MongoClient = require('mongodb').MongoClient;
+const { debug } = require('console');
+const { ObjectId } = require('mongodb');
 const client = new MongoClient(url);
 client.connect();
 app.use((req, res, next) => {
@@ -38,23 +40,20 @@ app.use((req, res, next) => {
 
 app.post('/api/login', async (req, res, next) => 
 {
-  // incoming: login, password
-  // outgoing: id, firstName, lastName, error
-
-  var error = '';
-
-  const { email, password } = req.body;
-  const db = client.db();
-  const results = await db.collection('Users').find({email:email, password:password}).toArray();
-  var id = -1;
-  var un = '';
-  if (results.length>0)
-    {
-        id = results[0]._id;
-        un = results[0].username;
-    }
-  var ret = {id:id, username: un, error:''};
-  res.status(200).json(ret);
+    const { email, password } = req.body;
+    const db = client.db();
+    const results = await db.collection('Users').find({email:email, password:password}).toArray();
+    var id = -1;
+    var un = '';
+    var ver = false;
+    if (results.length>0)
+      {
+          id = results[0]._id;
+          un = results[0].username;
+          ver = results[0].verified;
+      }
+    var ret = {id:id, verified: ver, username: un, error:''};
+    res.status(200).json(ret);
 
 });
 
@@ -116,6 +115,60 @@ app.post('/api/changeUser', async (req, res, next)=>
     res.status(200).json(ret)
 });
 
+app.post('/api/getUserGameInfo', async (req, res, next)=>
+{
+    //inc: id
+    //out: all user data, error
+    var error = "0";
+    const {id} = req.body;
+    const db = client.db();
+    var results = '';
+    if(id != null)
+    { 
+        results = await db.collection('Users').find({_id : ObjectId(id)}, {projection : {_id : 0, coins: 1, topscore: 1, assets:1, }}).toArray();
+        if(results.matchedCount == 0) error = 'No users found with that id';
+    }
+    else {
+        error = 'Invalid input'
+    }
+    const ret = {user : results, error: error }
+    res.status(200).json(ret)
+});
+
+app.post('/api/addUserGameSession', async (req, res, next)=>
+{
+    //inc: id, score
+    //out: error
+    var error = "0";
+    const {id, score} = req.body;
+    const db = client.db();
+    var results = '';
+    if(id != null)
+    { 
+        results = await db.collection('Users').find({_id : ObjectId(id)}).toArray();
+    
+        if (score > results[0].topscore) {
+            await db.collection('Users').updateOne({_id : ObjectId(id)}, {$set : {topscore : score}});
+            var leaderboardArr = await db.collection('Leaderboard').find().sort({position : 1}).toArray();
+            var tmpUsername = results[0].username;
+            var tmpScore = score;
+            for (let i = 0; i < 10; i++) {
+                if (tmpScore > leaderboardArr[i].score) {
+                    await db.collection('Leaderboard').updateOne({_id : leaderboardArr[i]._id}, { $set : {username : tmpUsername, score : tmpScore}});
+                    tmpUsername = leaderboardArr[i].username;
+                    tmpScore = leaderboardArr[i].score;
+                }
+            }
+        }
+            
+    }
+    else {
+        error = 'Invalid input';
+    }
+    const ret = {error: error }
+    res.status(200).json(ret)
+});
+
 app.post('/api/changePassword', async (req, res, next) => {
     //inc: username, password, newPass
     //out: error
@@ -128,6 +181,41 @@ app.post('/api/changePassword', async (req, res, next) => {
         if ((await results).matchedCount == 0) error = '1';
     }
     const ret = { error: error }
+    res.status(200).json(ret)
+});
+
+app.post('/api/populateLeaderboard', async (req, res, next) => {
+    //inc: none
+    //out: error
+    var error = "0";
+    const db = client.db();
+    const results = await db.collection('Users').find().sort({topscore: -1}).limit(10).toArray();
+    
+    var topscore = 0;
+    var username = "";
+    var position = 0;
+    await db.collection('Leaderboard').deleteMany({});
+    for (let i = 0; i < 10; i++) {
+        topscore = results[i].topscore;
+        username = results[i].username;
+        position = i+1;
+        const feed = {position : position, username : username, score : topscore};
+        db.collection('Leaderboard').insertOne(feed, function(err, res){
+            if (err) error = "1"
+        });
+    }
+    const ret = { error: error }
+    res.status(200).json(ret)
+});
+
+app.post('/api/getLeaderboard', async (req, res, next) => {
+    //inc: none
+    //out: leaderboard, error
+    var error = "0";
+    const db = client.db();
+    const results = await db.collection('Leaderboard').find({}, {projection : {_id : 0}}).sort({position: 1}).toArray();
+    
+    const ret = { leaderboard: results, error: error }
     res.status(200).json(ret)
 });
 
@@ -181,4 +269,22 @@ app.post('/api/verifyCode', async (req, res, next) => {
     const ret = {error : error}
     res.status(200).json(ret);
 });
+app.post('/api/userFromEmail', async (req, res, next)=> {
+    // inc : email
+    // out : username, rror
+    const { email } = req.body;
+    var error = '0';
+    var username = '';
+    const db = client.db();
+    const results = await db.collection('Users').find({email:email}).toArray();
+    if (results.length == 0)
+    { 
+        error = '1';
+    } else {
+        username = results[0].username;
+    }
+    const ret = {username:username, error:error}
+    res.status(200).json(ret)
+});
+
 app.listen(PORT, () => { console.log('Server listening on port ' + PORT); }); // start Node + Express server on port 5000
