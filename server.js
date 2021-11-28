@@ -276,8 +276,8 @@ app.post('/api/userFromEmail', async (req, res, next)=> {
     var error = '0';
     var username = '';
     const db = client.db();
-    const results = await db.collection('Users').find({email:email});
-    if ((results).matchedCount == 0)
+    const results = await db.collection('Users').find({email:email}).toArray();
+    if (results.matchedCount == 0)
     { 
         error = '1';
     } else {
