@@ -269,4 +269,16 @@ app.post('/api/verifyCode', async (req, res, next) => {
     const ret = {error : error}
     res.status(200).json(ret);
 });
+app.post('/api/userFromEmail', async (req, res, next)=> {
+    // inc : email
+    // out : error
+    const { email } = req.body;
+    var error = '0';
+    const db = client.db();
+    const results = await db.collection('Users').find({email:email});
+    if ((results).matchedCount == 0)  error = '1';
+    username = results[0].username;
+    ret = {username:username, error:error}
+    res.status(200).json(ret)
+})
 app.listen(PORT, () => { console.log('Server listening on port ' + PORT); }); // start Node + Express server on port 5000
