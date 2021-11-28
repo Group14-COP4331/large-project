@@ -40,23 +40,20 @@ app.use((req, res, next) => {
 
 app.post('/api/login', async (req, res, next) => 
 {
-  // incoming: login, password
-  // outgoing: id, firstName, lastName, error
-
-  var error = '';
-
-  const { email, password } = req.body;
-  const db = client.db();
-  const results = await db.collection('Users').find({email:email, password:password}).toArray();
-  var id = -1;
-  var un = '';
-  if (results.length>0)
-    {
-        id = results[0]._id;
-        un = results[0].username;
-    }
-  var ret = {id:id, username: un, error:''};
-  res.status(200).json(ret);
+    const { email, password } = req.body;
+    const db = client.db();
+    const results = await db.collection('Users').find({email:email, password:password}).toArray();
+    var id = -1;
+    var un = '';
+    var ver = false;
+    if (results.length>0)
+      {
+          id = results[0]._id;
+          un = results[0].username;
+          ver = results[0].verified;
+      }
+    var ret = {id:id, verified: ver, username: un, error:''};
+    res.status(200).json(ret);
 
 });
 
