@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Sancreek&display=swap');
+
+body
+{
+  margin: 0px;
+}
+
+div {
+  margin: 0;
+}
+
+button {
+  display: flex;
+  top: 50%;
+  background: url('../grayBlock.png');
+  border: 1px solid;
+  font-family: "Sancreek";
+  line-height: 1;
+  font-size: 13px;
+  text-align: center;
+  margin: auto;
+  width: 150px;
+  height: 40px;
+  padding: 1em 4.2em;
+  color: white;
+  /* transform: translateY(-50%); */
+  }
+
+  .raise:hover,
+  .raise:focus {
+    box-shadow: 0 0.5em 0.5em -0.4em var(--hover);
+    transform: translateY(-0.25em);
+}

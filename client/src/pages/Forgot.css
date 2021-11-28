@@ -1,0 +1,20 @@
+.center {
+    margin: 0 auto;
+    align-self: center;
+    display: flex;
+}
+
+.leftAlign {
+    margin-left: 30px;
+
+}
+
+.forgotPSize {
+    font-size: 13px;
+}
+
+.show {
+    position: relative;
+    color: white;
+    margin-left: 10%;
+}
