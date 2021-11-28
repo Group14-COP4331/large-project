@@ -288,7 +288,20 @@ app.post('/api/userFromEmail', async (req, res, next)=> {
     res.status(200).json(ret)
 });
 
-var ret = { id: id, verified: ver, username: un, error: '' };
-res.status(200).json(ret);
+// const { email, password } = req.body;
+// const db = client.db();
+// const results = await db.collection('Users').find({ email: email, password: password }).toArray();
+// var id = -1;
+// var un = '';
+// var ver = false;
+// if (results.length > 0) {
+//     id = results[0]._id;
+//     un = results[0].username;
+//     ver = results[0].verified;
+// }
+// var ret = { id: id, verified: ver, username: un, error: '' };
+// res.status(200).json(ret);
+
+// res.status(200).json(ret);
 
 app.listen(PORT, () => { console.log('Server listening on port ' + PORT); }); // start Node + Express server on port 5000
