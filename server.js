@@ -86,15 +86,21 @@ app.post('/api/registerUser', async (req, res, next) =>
     const assets = new Array(20).fill(false);
     assets[0] = true;
     const db = client.db();
+    var id = ""
     const feed = { username : username, password: password, email : email, coins : 0, topscore : 0, 
                    assets : assets, verified : false, verifyCode : null}
     if (!(username == null || password == null || email == null))
     {
-        db.collection('Users').insertOne(feed, function (err, res) {
-            if (err) error = "1"
-        });
+        var results = await db.collection('Users').find({$or:[{ email: email },{username:username}]}).toArray();
+        if(results.length > 0)
+        {
+            error = '1'
+        } else {
+            results = await db.collection('Users').insertOne(feed)
+            id = results.insertedId
+        }
     } else { error = "1"}
-    var ret = { error: error };
+    var ret = { id: id, error: error };
     res.status(200).json(ret);
 });
 
