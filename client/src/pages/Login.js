@@ -88,7 +88,8 @@ const Login = () => {
                 setMessage('User/Password combination incorrect');
             } 
             else {
-                var user = {username: res.username, email: loginName, verify: res.verified}
+                var user = {username: res.username, id: res.id, email: loginName, verify: res.verified}
+                localStorage.removeItem('user_data');
                 localStorage.setItem('user_data', JSON.stringify(user));
 
                 if(res.verified === false)

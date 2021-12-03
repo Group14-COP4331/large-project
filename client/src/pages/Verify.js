@@ -51,16 +51,47 @@ function buildPath(route)
     return 'https://dungeonride.herokuapp.com/' + route
 }
 
-  
 const Verify = () => {
+
     
     var res = JSON.parse(localStorage.getItem('user_data'));
+
+    const gameInfo = async event =>
+    {
+        var obj = { id: res.id};
+        var js = JSON.stringify(obj);
+       try {
+            const response = await fetch(buildPath('api/getUserGameInfo'),
+                { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
+            
+            var resp = JSON.parse(await response.text());
+            localStorage.removeItem('game_data');
+            localStorage.setItem('game_data', JSON.stringify(resp.user[0]));
+
+            const response1 = await fetch(buildPath('api/getLeaderboard'),
+                { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
+            
+            resp = JSON.parse(await response1.text());
+            localStorage.removeItem('leaderboard');
+            localStorage.setItem('leaderboard', JSON.stringify(resp.leaderboard));
+            
+            window.location.href = '/Game';
+        }
+        catch(e)
+        {
+            console.log(e.toString());
+            return;
+        }
+    }
 
     if(!res)
         window.location.href = '/';
 
     if(res && res.verify === true)
-        window.location.href = '/Game';
+    {
+        const info = gameInfo();
+        console.log(info);
+    }
 
     var email = res.email;
     var username = res.username;
@@ -99,6 +130,7 @@ const Verify = () => {
             if(resp.error === '0')
             {
                 var user = {username: res.username, email: res.email, verify: true}
+                localStorage.removeItem('user_data');
                 localStorage.setItem('user_data', JSON.stringify(user));
                 window.location.href = '/Game';
             }
@@ -111,6 +143,9 @@ const Verify = () => {
             return;
         }
     };
+
+    if(res && res.verify === false)
+    {
 
     return (
         <Paper style={styles.paperContainer}>
@@ -143,6 +178,11 @@ const Verify = () => {
             <h4 style={{textAlign:"center", color:'white'}}>{message}</h4>
         </Paper>
     )
+    }
+    else
+    {
+        return(<Paper style={styles.paperContainer}></Paper>)
+    }
 }
 
 export default Verify;
