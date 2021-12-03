@@ -72,13 +72,13 @@ function complexity(password)
 
 
     if(!req[0])
-        ret += 'Password must be of at least length 8' + <br/>
+        ret += 'Password must be of at least length 8' 
     if(!req[1])
-        ret += 'Password must contain at least one number' + <br/>
+        ret += 'Password must contain at least one number'
     if(!req[2])
-        ret += 'Password must contain at least one special character' + <br/>
+        ret += 'Password must contain at least one special character'
     if(!req[3])
-        ret += "Password must contain at least capital character" + <br/>
+        ret += "Password must contain at least capital character"
     
     return ret;
 }
@@ -92,7 +92,7 @@ const SignUp = () =>{
     const [message, setMessage] = useState('')
 
     const doSignup = async event => {
-        
+
         if(email === "" || username === "" || password === "" || verifyPassword === "")
             setMessage('All fields required.');
         else if(password !==  verifyPassword)
@@ -134,6 +134,7 @@ const SignUp = () =>{
                 res = JSON.parse(await response.text());
 
                 var user = {username: username, email: email, verify: false}
+                localStorage.removeItem('user_data');
                 localStorage.setItem('user_data', JSON.stringify(user));
                 
 

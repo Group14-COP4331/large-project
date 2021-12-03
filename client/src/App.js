@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Forgot from './pages/Forgot';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Game from './pages/Game';
 import Verify from './pages/Verify';
 
 
@@ -17,7 +18,7 @@ const App = () => {
                 <Route path="/Forgot" exact element={<Forgot />} />
                 <Route path="/Signup" exact element={<Signup />} />
                 <Route path="/Verify" exact element={<Verify />} />
-                <Route path="/Game" exact element={<Home />} />
+                <Route path="/Game" exact element={<Game />} />
             </Routes>
         </Router>
     </div>

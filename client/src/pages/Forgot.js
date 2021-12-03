@@ -183,6 +183,7 @@ const Forgot = () => {
                     { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
 
                 var user = {username: username, email: email, verify: true}
+                localStorage.removeItem('user_data');
                 localStorage.setItem('user_data', JSON.stringify(user));
 
                 window.location.href = '/Verify';
