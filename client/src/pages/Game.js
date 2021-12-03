@@ -5,7 +5,6 @@ const Game = () => {
 
     var res = JSON.parse(localStorage.getItem('user_data'));
 
-    
     if(!res)
         window.location.href = '/';
     

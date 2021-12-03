@@ -68,6 +68,7 @@ const WhiteTextTypography = withStyles({
 
 const Login = () => {
 
+    localStorage.clear();
     const [loginName, setName] = useState('')
     const [loginPassword, setPassword] = useState('')
     const [message, setMessage] = useState('')
@@ -75,7 +76,6 @@ const Login = () => {
     const doLogin = async event => {
         event.preventDefault();
 
-        //var obj = { email: 'Industrious.Shop@gmail.com', password: 'password' };
         var obj = { email: loginName, password: loginPassword};
         var js = JSON.stringify(obj);
 

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import Image from '../bg2.jpg';
 import { Paper, Typography, withStyles, Box, Button } from '@material-ui/core';
+let strongPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})')
+
+
 
 const styles = {
     paperContainer: {
@@ -65,26 +68,10 @@ function buildPath(route)
     return 'https://dungeonride.herokuapp.com/' + route
 }
 
-function complexity(password)
-{
-    var ret = '';
-    var req = [true, true, true, true];
-
-
-    if(!req[0])
-        ret += 'Password must be of at least length 8' 
-    if(!req[1])
-        ret += 'Password must contain at least one number'
-    if(!req[2])
-        ret += 'Password must contain at least one special character'
-    if(!req[3])
-        ret += "Password must contain at least capital character"
-    
-    return ret;
-}
 
 const SignUp = () =>{
     
+    localStorage.clear();
     const [email, setEmail] = useState('')
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
@@ -97,8 +84,8 @@ const SignUp = () =>{
             setMessage('All fields required.');
         else if(password !==  verifyPassword)
             setMessage('Password fields must match.');
-        else if(complexity(password) !== '')
-            setMessage(complexity(password));
+        else if(!strongPassword.test(password))
+            setMessage('Password not strong enough.');
         else
         {
             setMessage('');

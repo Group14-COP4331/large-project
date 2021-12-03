@@ -43,23 +43,25 @@ const WhiteTextTypography = withStyles({
     }
   })(Typography);
 
-export default class Home extends React.Component{
-    render(){
-        return(
-            <Paper style={styles.paperContainer}>
-              <Box pt={10}>
-                <WhiteTextTypography  style={styles.font} variant="h1" align="center" > 
-                  Dungeon Run
-                </WhiteTextTypography>
-              </Box>
-              <Box pt={10}>
-                <div style={styles.alignitems}>
-                  <Button style={styles.buttons} class="raise" variant="contained" onClick={()=> window.location.href='/login'}> LOGIN </Button>
-                  <Box pt={2}></Box>
-                  <Button style={styles.buttons} class="raise" variant="contained" onClick= {()=> window.location.href='/Signup'}>SIGN UP</Button>
-                </div>
-              </Box>
-            </Paper>
-        )
-    }
-  }
+const Home = () => {
+
+    localStorage.clear();
+    return(
+        <Paper style={styles.paperContainer}>
+          <Box pt={10}>
+            <WhiteTextTypography  style={styles.font} variant="h1" align="center" > 
+              Dungeon Run
+            </WhiteTextTypography>
+          </Box>
+          <Box pt={10}>
+            <div style={styles.alignitems}>
+              <Button style={styles.buttons} class="raise" variant="contained" onClick={()=> window.location.href='/login'}> LOGIN </Button>
+              <Box pt={2}></Box>
+              <Button style={styles.buttons} class="raise" variant="contained" onClick= {()=> window.location.href='/Signup'}>SIGN UP</Button>
+            </div>
+          </Box>
+        </Paper>
+    )
+}
+
+export default Home;

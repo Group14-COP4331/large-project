@@ -3,8 +3,8 @@ import {Paper, withStyles, Typography, Box, Button} from '@material-ui/core';
 import Image from '../bg2.jpg';
 import './Forgot.css';
 import './login.css';
-import TextField from './TextField.js';
-import Verify from './Verify';
+let strongPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})')
+
 
 const styles = {
     paperContainer: {
@@ -75,25 +75,8 @@ function buildPath(route)
     return 'https://dungeonride.herokuapp.com/' + route
 }
 
-function complexity(password)
-{
-    var ret = '';
-    var req = [true, true, true, true];
-
-
-    if(!req[0])
-        ret += 'Password must be of at least length 8' + <br/>
-    if(!req[1])
-        ret += 'Password must contain at least one number' + <br/>
-    if(!req[2])
-        ret += 'Password must contain at least one special character' + <br/>
-    if(!req[3])
-        ret += "Password must contain at least capital character" + <br/>
-    
-    return ret;
-}
-
 const Forgot = () => {
+    localStorage.clear();
     
     const [state, setState] = useState('email')
     const [email, setEmail] = useState('')
@@ -102,14 +85,11 @@ const Forgot = () => {
     const [verify, setVerify] = useState(0)
     const [password, setPassword] = useState('')
     const [verPassword, setVerPassword] = useState('')
-    
 
     const emailer = async event =>{
-
         
         var obj = { email: email};
         var js = JSON.stringify(obj);
-
         
         try {
             const response = await fetch(buildPath('api/userFromEmail'),
@@ -169,8 +149,8 @@ const Forgot = () => {
             setMessage('All fields required.');
         else if(password !==  verPassword)
             setMessage('Password fields must match.');
-        else if(complexity(password) !== '')
-            setMessage(complexity(password));
+        else if(!strongPassword.test(password))
+            setMessage('Password not strong enough.');
         else
         {
             event.preventDefault();

@@ -6,6 +6,7 @@ function buildPath(route)
 var user = JSON.parse(localStorage.getItem('game_data'));
 var userInfo = JSON.parse(localStorage.getItem('user_data'));
 var leadBoar = JSON.parse(localStorage.getItem('leaderboard'));
+
 var canvas;
 var keys = [];
 var bottom = 900;
@@ -14,7 +15,13 @@ var maps;
 var scene = "menu";
 var score = 0;
 var name = userInfo.username;
-var start = false;
+var start;
+
+if(user.topscore === 0)
+    start = false;
+else
+    start = true;
+
 var highScore = user.topscore;
 var earnings = user.coins;
 var store = {
@@ -37,22 +44,6 @@ var triangleDown;
 var triangleUp;
 var triangleLeft;
 var triangleRight;
-
-/*var placeHolder = 'This could be you';
-
-var scores = [
-    [placeHolder, 0],
-    [placeHolder, 0],
-    [placeHolder, 0],
-    [placeHolder, 0],
-    [placeHolder, 0],
-    [placeHolder, 0],
-    [placeHolder, 0],
-    [placeHolder, 0],
-    [placeHolder, 0],
-    [placeHolder, 0],
-];*/
-
 
 var scores = [
     [leadBoar[0].username, leadBoar[0].score],
@@ -111,6 +102,102 @@ function leaderboard()
 
     orderedScores = scores;
 }
+
+function coinUpdate()
+{
+    const game = async event =>
+    {
+        try {
+
+            var obj = {id : userInfo.id, numCoins: earnings};
+            var js = JSON.stringify(obj);
+
+            await fetch(buildPath('api/updateCoins'),
+                { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
+            
+            obj = {coins : earnings, topscore: user.topscore, assets: user.assets};
+            js = JSON.stringify(obj);
+
+            localStorage.removeItem('game_data');
+            localStorage.setItem('game_data', js);
+
+            user = JSON.parse(localStorage.getItem('game_data'));
+        }
+        catch(e)
+        {
+            console.log(e.toString());
+            return;
+        }
+    }
+
+    game();
+}
+
+function assetUpdate(i)
+{
+    const game = async event =>
+    {
+        try {
+
+            var obj = {id : userInfo.id, assetNum: i};
+            var js = JSON.stringify(obj);
+
+            await fetch(buildPath('api/updateAssets'),
+                { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
+            
+            var assetList = user.assets;
+            assetList[i] = true;
+            
+            obj = {coins : user.coins, topscore: user.topscore, assets: assetList};
+            js = JSON.stringify(obj);
+            
+            localStorage.removeItem('game_data');
+            localStorage.setItem('game_data', js);
+
+            user = JSON.parse(localStorage.getItem('game_data'));
+        }
+        catch(e)
+        {
+            console.log(e.toString());
+            return;
+        }
+    }
+
+    game();
+}
+
+function topscoreUpdate()
+{
+    const game = async event =>
+    {
+        try {
+
+            var obj = {id : userInfo.id, score: highScore};
+            var js = JSON.stringify(obj);
+
+            await fetch(buildPath('api/addUserGameSession'),
+                { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
+            
+            obj = {coins : earnings, topscore: user.topscore, assets: user.assets};
+            obj = {coins : user.coins, topscore: highScore, assets: user.assets};
+            js = JSON.stringify(obj);
+
+            localStorage.removeItem('game_data');
+            localStorage.setItem('game_data', js);
+
+            user = JSON.parse(localStorage.getItem('game_data'));
+        }
+        catch(e)
+        {
+            console.log(e.toString());
+            return;
+        }
+    }
+
+    game();
+}
+
+
 
 function preload () {
     bg1 = loadImage("images/bg2.jpg");
@@ -256,7 +343,6 @@ class structures
             ],
         ];
         
-        
         var r = this.type[t];
         
         for(var i = 0; i < r.length; i++)
@@ -266,7 +352,6 @@ class structures
         
         return this.type[t];
     }
-    
     
     update()
     {
@@ -1625,6 +1710,8 @@ function draw()
                 {
                     earnings -= store.prices[storeSwipe];
                     store.bought[storeSwipe] = true;
+                    coinUpdate();
+                    assetUpdate(storeSwipe);
                 }
             }
             if(store.bought[storeSwipe])
@@ -1678,14 +1765,22 @@ function draw()
             text("Dungeon Run", window.innerWidth / 2, window.innerHeight / 5);
         } else
         {
-            textSize(20 + window.innerWidth / 60);
-            text("SCORE: " + score + "m\n" + "HIGHSCORE: " + highScore + "m\n" + "EARNINGS: $" + earnings, window.innerWidth / 2, window.innerHeight / 5);
+            if(score > 0)
+            {
+                textSize(20 + window.innerWidth / 60);
+                text("SCORE: " + score + "m\n" + "HIGHSCORE: " + highScore + "m\n" + "COINS: $" + earnings, window.innerWidth / 2, window.innerHeight / 5);
+            }
+            else
+            {
+                textSize(20 + window.innerWidth / 60);
+                text("\n" + "HIGHSCORE: " + highScore + "m\n" + "COINS: $" + earnings, window.innerWidth / 2, window.innerHeight / 5);
+            }
         }
         
         if(highScore < score)
         {
             highScore = score;
-            /**UPDATE**/
+            topscoreUpdate();
         }
         
         textSize(20 + window.innerWidth / 70);
@@ -1795,6 +1890,7 @@ function draw()
         death = false;
         scene = "menu";
         earnings += coins;
+        coinUpdate();
     }
     
     noStroke();

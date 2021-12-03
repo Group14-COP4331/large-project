@@ -181,7 +181,11 @@ const Verify = () => {
     }
     else
     {
-        return(<Paper style={styles.paperContainer}></Paper>)
+        return(<Paper style={styles.paperContainer}><Box pt={45}>
+            <WhiteTextTypography  style={styles.font} variant="h1" align="center">
+                LOADING...
+            </WhiteTextTypography>
+        </Box></Paper>)
     }
 }
 
