@@ -297,11 +297,13 @@ app.post('/api/updateAssets', async (req, res, next)=> {
     const {id, assetNum} = req.body;
     var error = '0';
     const db = client.db();
+    var z = "${assetNum}"
     if(assetNum > 19 || assetNum < 0){
         error = '1';
     } else {
-    const results = await db.collection('Users').updateOne({ _id: id },
-        { $set: { "assets.$.assetNum" : true } });
+        setStr = `assets.$.${assetNum}`;
+        const results = await db.collection('Users').updateOne({ _id: id },
+        { $set: { setStr : true } });
         if (results.modifiedCount == 0) error = '1';
     }
     const ret = {error : error }
