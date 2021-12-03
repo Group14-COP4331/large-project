@@ -302,7 +302,7 @@ app.post('/api/updateAssets', async (req, res, next)=> {
     } else {
     const results = await db.collection('Users').updateOne({ _id: id },
         { $set: { "assets.$.assetNum" : true } });
-        if (results.lastErrorObject.updatedExisting == false) error = '1';
+        if (results.modifiedCount == 0) error = '1';
     }
     const ret = {error : error }
     res.status(200).json(ret);
