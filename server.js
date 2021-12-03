@@ -285,4 +285,20 @@ app.post('/api/userFromEmail', async (req, res, next) => {
     const ret = { username: username, error: error }
     res.status(200).json(ret)
 });
+app.post('/api/updateAssets', async (req, res, next)=> {
+    //inc: id, assetNum
+    //out: error
+    const {id, assetNum} = req.body;
+    var error = '0';
+    const db = client.db();
+    if(assetNum > 19 || assetNum < 0){
+        error = '1';
+    } else {
+    const results = await db.collection('Users').updateOne({ _id: id },
+        { $set: { "assets.$.assetNum:" : true } });
+    if (results.length == 0) error = '1';
+    }
+    const ret = {error : error }
+    res.status(200).json(ret);
+});
 app.listen(PORT, () => { console.log('Server listening on port ' + PORT); }); // start Node + Express server on port 5000
