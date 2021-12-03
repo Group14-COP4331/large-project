@@ -300,9 +300,8 @@ app.post('/api/updateAssets', async (req, res, next)=> {
     if(assetNum > 19 || assetNum < 0){
         error = '1';
     } else {
-        setStr = `assets.$.${assetNum}`;
-        const results = await db.collection('Users').updateOne({ _id: id },
-        { $set: { setStr : true } });
+        const results = await db.collection('Users').updateOne({ _id: ObjectId(id) },
+        { $set: {["assets." + assetNum] : true}});
         if (results.modifiedCount == 0) error = '1';
     }
     const ret = {error : error }
