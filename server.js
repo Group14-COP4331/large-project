@@ -307,4 +307,16 @@ app.post('/api/updateAssets', async (req, res, next)=> {
     const ret = {error : error }
     res.status(200).json(ret);
 });
+app.post('/api/updateCoins', async (req, res, next)=> {
+    //inc: id, numCoins
+    //out: error
+    const {id, numCoins} = req.body;
+    var error = '0'
+    const db = client.db();
+    const results = await db.collection('Users').updateOne({_id: ObjectId(id)},
+    {$set: {coins: numCoins}});
+    if(results.modifiedCount == 0) error = '1';
+    const ret = {error:error}
+    res.status(200).json(ret)
+})
 app.listen(PORT, () => { console.log('Server listening on port ' + PORT); }); // start Node + Express server on port 5000
