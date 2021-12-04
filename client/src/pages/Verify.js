@@ -96,7 +96,7 @@ const Verify = () => {
     var email = res.email;
     var username = res.username;
 
-    const [verify, setVerify] = useState(0)
+    var verify;
 
     const [message, setMessage] = useState('')
 
@@ -118,8 +118,8 @@ const Verify = () => {
 
     const doVerification = async event => {
         event.preventDefault();
-
-        var obj = { username: username, verifyCode: parseInt(verify)};
+        
+        var obj = { username: username, verifyCode: parseInt(verify.value)};
         var js = JSON.stringify(obj);
 
         try {
@@ -129,10 +129,12 @@ const Verify = () => {
 
             if(resp.error === '0')
             {
-                var user = {username: res.username, email: res.email, verify: true}
+                var user = {username: username, id: res.id, email: email, verify: true}
                 localStorage.removeItem('user_data');
                 localStorage.setItem('user_data', JSON.stringify(user));
-                window.location.href = '/Game';
+
+                const info = gameInfo();
+                console.log(info);
             }
             else if(resp.error === '1')
                 setMessage('Invalid code.');
@@ -156,7 +158,7 @@ const Verify = () => {
             </Box>
             
             <Box pt={10}>
-                <WhiteTextTypography variant="p" textAlign="center" style={styles.font} >
+                <WhiteTextTypography variant="p" textalign="center" style={styles.font} >
                 <div style={styles.text}>
                     We sent an email to {email} to verify your email address and activate your account.
                     <Link onClick={emailer}> Click here </Link>
@@ -164,17 +166,19 @@ const Verify = () => {
                 </div>
                 </WhiteTextTypography>
             </Box>
+            <form onSubmit={doVerification}>
             <Box pt={5}>
             <WhiteTextTypography align="center" style={styles.leftAlign}> 
                 CODE:
             </WhiteTextTypography>
-            <input type="number"  style={styles.inputText} onChange={event => setVerify(event.target.value)} />
+            <input type="number"  style={styles.inputText} ref={(c) => verify = c} />
             </Box>
             <div style={styles.alignitems}>
                 <Box pt={3}>
-                <Button class="raise" onClick={doVerification}>SUBMIT</Button>
+                <Button type="submit" class="raise" value="VERIFY" onClick={doVerification}>SUBMIT</Button>
                 </Box>
             </div>
+            </form>
             <h4 style={{textAlign:"center", color:'white'}}>{message}</h4>
         </Paper>
     )

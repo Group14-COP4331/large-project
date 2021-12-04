@@ -3,7 +3,15 @@ import Image from '../bg2.jpg';
 import { Paper, Typography, withStyles, Box, Button } from '@material-ui/core';
 let strongPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})')
 
-
+function validateEmail (emailAdress)
+{
+  let regexEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  if (emailAdress.match(regexEmail)) {
+    return true; 
+  } else {
+    return false; 
+  }
+}
 
 const styles = {
     paperContainer: {
@@ -70,27 +78,60 @@ function buildPath(route)
 
 
 const SignUp = () =>{
-    
+
     localStorage.clear();
-    const [email, setEmail] = useState('')
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
-    const [verifyPassword, setVerify] = useState('')
     const [message, setMessage] = useState('')
 
-    const doSignup = async event => {
+    var email;
+    var username;
+    var password;
+    var verifyPassword;
 
-        if(email === "" || username === "" || password === "" || verifyPassword === "")
+    const doSignup = async event => {
+        
+        event.preventDefault();
+
+        var emailTemp = email.value;
+        var usernameTemp = username.value;
+        var passwordTemp = password.value;
+        var verifyPasswordTemp = verifyPassword.value;
+
+
+        if(emailTemp !== "" && validateEmail (emailTemp))
+        {
+            var obj = { email: emailTemp};
+            var js = JSON.stringify(obj);
+
+            try {
+                const response = await fetch(buildPath('api/userExists'),
+                    { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
+                var res = JSON.parse(await response.text());
+
+                if(res.exists === 1)
+                {
+                    setMessage('Account with this email already exists.');
+                    return;
+                }
+            }
+            catch (e) {
+                console.log(e.toString());
+                return;
+            }
+        }
+
+        if(emailTemp === "" || usernameTemp === "" || passwordTemp === "" || verifyPasswordTemp === "")
             setMessage('All fields required.');
-        else if(password !==  verifyPassword)
+        else if(!validateEmail (emailTemp))
+            setMessage('Invalid email.');
+        else if(passwordTemp !==  verifyPasswordTemp)
             setMessage('Password fields must match.');
-        else if(!strongPassword.test(password))
+        else if(!strongPassword.test(passwordTemp))
             setMessage('Password not strong enough.');
         else
         {
             setMessage('');
 
-            var obj = { username: username};
+            var obj = { username: usernameTemp};
             var js = JSON.stringify(obj);
 
             try {
@@ -109,9 +150,7 @@ const SignUp = () =>{
                 return;
             }
 
-            event.preventDefault();
-
-            obj = { username: username, email: email, password: password};
+            obj = { username: usernameTemp, email: emailTemp, password: passwordTemp};
             js = JSON.stringify(obj);
 
             try {
@@ -120,12 +159,12 @@ const SignUp = () =>{
                 
                 res = JSON.parse(await response.text());
 
-                var user = {username: username, email: email, verify: false}
+                var user = {username: usernameTemp, id: res.id, email: emailTemp, verify: false}
                 localStorage.removeItem('user_data');
                 localStorage.setItem('user_data', JSON.stringify(user));
                 
 
-                obj = { email: email};
+                obj = { email: emailTemp};
                 js = JSON.stringify(obj);
 
                 try {
@@ -147,8 +186,6 @@ const SignUp = () =>{
         }
     };
 
-
-
     return (
         <Paper style={styles.paperContainer}>
             <Box pt={10}>
@@ -156,32 +193,35 @@ const SignUp = () =>{
                     JOIN DUNGEON RUN
                 </WhiteTextTypography>
             </Box>
-            <Box pt={10}>
-            <WhiteTextTypography  align="center" style={styles.leftAlignEmail}> 
-                EMAIL:
-            </WhiteTextTypography>
-            <input  style={styles.inputText}  onChange={event => setEmail(event.target.value)} />
-            </Box>
-
-            <WhiteTextTypography  align="center" style={styles.leftAlignPassword}> 
-                USERNAME:
-            </WhiteTextTypography>
-            <input  style={styles.inputText}  onChange={event => setUsername(event.target.value)} />
-
-            <WhiteTextTypography align="center" style={styles.leftAlignPassword} > 
-                PASSWORD:
-            </WhiteTextTypography>
-            <input  style={styles.inputText} type="password" onChange={event => (setPassword(event.target.value))} />
-
-            <WhiteTextTypography align="center" style={styles.leftAlignVerify} > 
-                VERIFY PASSWORD:
-            </WhiteTextTypography>
-            <input  style={styles.inputText} type="password" onChange={event => (setVerify(event.target.value))} />
-            <div style={styles.alignitems}>
-                <Box pt={3}>
-                <Button style={styles.buttons} onClick={doSignup} class="raise" >CREATE ACCOUNT</Button>
+            <form onSubmit={doSignup}>
+                <Box pt={10}>
+                <WhiteTextTypography  align="center" style={styles.leftAlignEmail}> 
+                    EMAIL:
+                </WhiteTextTypography>
+                <input style={styles.inputText} type="text" ref={(c) => email = c} />
                 </Box>
-            </div>
+
+                <WhiteTextTypography  align="center" style={styles.leftAlignPassword}> 
+                    USERNAME:
+                </WhiteTextTypography>
+                <input style={styles.inputText} type="text" ref={(c) => username = c} />
+
+                <WhiteTextTypography align="center" style={styles.leftAlignPassword} > 
+                    PASSWORD:
+                </WhiteTextTypography>
+                <input type="password" style={styles.inputText} ref={(c) => password = c} />
+
+                <WhiteTextTypography align="center" style={styles.leftAlignVerify} > 
+                    VERIFY PASSWORD:
+                </WhiteTextTypography>
+                <input type="password" style={styles.inputText} ref={(c) => verifyPassword = c} />
+                
+                <div style={styles.alignitems}>
+                    <Box pt={3}>
+                    <Button type="submit" id="signupButton" class="raise" value="SIGNUP" onClick={doSignup} style={styles.buttons}>CREATE ACCOUNT</Button>
+                    </Box>
+                </div>
+            </form>
             <h4 style={{textAlign:"center", color:'white'}}>{message}</h4>
         </Paper>
     )

@@ -1833,13 +1833,13 @@ function draw()
 
         strokeWeight(15);
         stroke(255, 255, 255, 50);
-        line(0, bottom + 2, displayWidth, bottom + 2);
-        line(0, ceiling - 2, displayWidth, ceiling - 2);
+        line(0, bottom + 2, displayWidth * 1.5, bottom + 2);
+        line(0, ceiling - 2, displayWidth * 1.5, ceiling - 2);
 
         strokeWeight(5);
         stroke(255);
-        line(0, bottom + 2, displayWidth, bottom + 2);
-        line(0, ceiling - 2, displayWidth, ceiling - 2);
+        line(0, bottom + 2, displayWidth * 1.5, bottom + 2);
+        line(0, ceiling - 2, displayWidth * 1.5, ceiling - 2);
 
         score += floor(gameSpeed / 5);
 
