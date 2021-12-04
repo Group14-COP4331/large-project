@@ -64,7 +64,7 @@ app.post('/api/userExists', async (req, res, next) =>
 
   var error = '';
 
-  const { username } = req.body;
+  const { username, email } = req.body;
   const db = client.db();
     const results = await db.collection('Users').find({ $or: [{ email: email }, { username: username }] }).toArray();
   var ret;
