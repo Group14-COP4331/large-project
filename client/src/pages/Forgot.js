@@ -3,15 +3,24 @@ import {Paper, withStyles, Typography, Box, Button} from '@material-ui/core';
 import Image from '../bg2.jpg';
 import './Forgot.css';
 import './login.css';
+
 let strongPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})')
 
+function validateEmail (emailAdress)
+{
+  let regexEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  if (emailAdress.match(regexEmail)) {
+    return true; 
+  } else {
+    return false; 
+  }
+}
 
 const styles = {
     paperContainer: {
         backgroundPosition: '-10px -10px',
         height: '100vh',
         width: '100vw',
-        // width: 1400,
         backgroundImage: `url(${Image})`,
     },
     font: {
@@ -79,16 +88,27 @@ const Forgot = () => {
     localStorage.clear();
     
     const [state, setState] = useState('email')
-    const [email, setEmail] = useState('')
+    var email;
+    const [emailTemp, setEmail] = useState('')
     const [username, setUsername] = useState('')
     const [message, setMessage] = useState('')
-    const [verify, setVerify] = useState(0)
-    const [password, setPassword] = useState('')
-    const [verPassword, setVerPassword] = useState('')
+    var verify;
+    var password;
+    var verPassword;
 
     const emailer = async event =>{
+
+        event.preventDefault();
+
+        setEmail(email.value);
+
+        if(!validateEmail (email.value))
+        {
+            setMessage('Invalid email.');
+            return;
+        }
         
-        var obj = { email: email};
+        var obj = { email: email.value};
         var js = JSON.stringify(obj);
         
         try {
@@ -120,7 +140,7 @@ const Forgot = () => {
     const doVerification = async event => {
         event.preventDefault();
 
-        var obj = { username: username, verifyCode: parseInt(verify)};
+        var obj = { username: username, verifyCode: parseInt(verify.value)};
         var js = JSON.stringify(obj);
 
         try {
@@ -145,24 +165,37 @@ const Forgot = () => {
 
     const changePassword = async event => {
 
-        if(password === "" || verPassword === "")
+        var passwordTemp = password.value;
+        var verPasswordTemp = verPassword.value;
+
+        event.preventDefault();
+        
+        if(passwordTemp === "" || verPasswordTemp === "")
             setMessage('All fields required.');
-        else if(password !==  verPassword)
+        else if(passwordTemp !==  verPasswordTemp)
             setMessage('Password fields must match.');
-        else if(!strongPassword.test(password))
+        else if(!strongPassword.test(passwordTemp))
             setMessage('Password not strong enough.');
         else
         {
-            event.preventDefault();
-
-            var obj = { username: username, newPass: password};
+            setMessage('');
+            var obj = { username: username, newPass: passwordTemp};
             var js = JSON.stringify(obj);
-
+            
             try {
                 await fetch(buildPath('api/changePassword'),
                     { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
+                    
 
-                var user = {username: username, email: email, verify: true}
+                obj = { email: emailTemp, password: passwordTemp};
+                js = JSON.stringify(obj);
+
+                const response = await fetch(buildPath('api/login'),
+                { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
+
+                var res = JSON.parse(await response.text());
+                
+                var user = {username: username, id: res.id, email: emailTemp, verify: true}
                 localStorage.removeItem('user_data');
                 localStorage.setItem('user_data', JSON.stringify(user));
 
@@ -179,25 +212,28 @@ const Forgot = () => {
     if(state === 'email')
     {
         return(
-        <Paper style={styles.paperContainer}>
-            <Box pt={10}>
-            <WhiteTextTypography style={styles.font} variant="h1" align="center" > 
-                FORGOT PASSWORD
-            </WhiteTextTypography>
-            </Box>
-            <Box pt={10}>
-            <WhiteTextTypography  align="center" style={styles.leftAlignEmail}> 
-                ENTER GMAIL:
-            </WhiteTextTypography>
-            <input style={styles.inputText} onChange={event => setEmail(event.target.value)} /> {/* for the input text*/}
-            </Box>
-            <Box pt={3}>
-            <Button class="raise" onClick={emailer}>Enter</Button>
-            </Box>
-            <h4 style={{textAlign:"center", color:'white'}}>{message}</h4>
-        </Paper>
-        
-        )
+            <Paper style={styles.paperContainer}>
+                <Box pt={10}>
+                <WhiteTextTypography style={styles.font} variant="h1" align="center" > 
+                    FORGOT PASSWORD
+                </WhiteTextTypography>
+                </Box>
+                <form onSubmit={emailer}>
+                    <Box pt={10}>
+                    <WhiteTextTypography  align="center" style={styles.leftAlignEmail}> 
+                        ENTER GMAIL:
+                    </WhiteTextTypography>
+                    <input style={styles.inputText} type="text" ref={(c) => email = c} />
+                    </Box>
+                    <Box pt={3}>
+                    <div style={styles.alignitems}>
+                        <Button type="submit" class="raise" value="EMAIL" onClick={emailer}>Enter</Button>
+                    </div>
+                    </Box>
+                </form>
+                <h4 style={{textAlign:"center", color:'white'}}>{message}</h4>
+            </Paper>
+            )
     }
     else if(state === 'changepassword')
     {
@@ -208,21 +244,23 @@ const Forgot = () => {
                         FORGOT PASSWORD
                     </WhiteTextTypography>
                 </Box>
-                <Box pt={5}>
-                <WhiteTextTypography  align="center" style={styles.leftAlignNew}> 
-                    NEW PASSWORD:
-                </WhiteTextTypography>
-                <input type="password" style={styles.inputText} onChange={event => setPassword(event.target.value)} /> {/* for the input text*/}
-                </Box>
-                <WhiteTextTypography align="center" style={styles.leftAlignVerify} > 
-                    VERIFY PASSWORD:
-                </WhiteTextTypography>
-                <input type="password" style={styles.inputText} onChange={event => setVerPassword(event.target.value)} /> {/* for the input text*/}
-                <div style={styles.alignitems}>
-                    <Box pt={3}>
-                    <Button style={styles.buttons} class="raise" variant="contained" onClick={changePassword}> CHANGE PASSWORD</Button>
+                <form onSubmit={changePassword}>
+                    <Box pt={5}>
+                    <WhiteTextTypography  align="center" style={styles.leftAlignNew}> 
+                        NEW PASSWORD:
+                    </WhiteTextTypography>
+                    <input style={styles.inputText} type="password" ref={(c) => password = c} />
                     </Box>
-                </div>
+                    <WhiteTextTypography align="center" style={styles.leftAlignVerify} > 
+                        VERIFY PASSWORD:
+                    </WhiteTextTypography>
+                    <input style={styles.inputText} type="password" ref={(c) => verPassword = c} />
+                    <div style={styles.alignitems}>
+                        <Box pt={3}>
+                        <Button type="submit" class="raise" value="PASSWORDCHANGE" style={styles.buttons} onClick={changePassword}> CHANGE PASSWORD</Button>
+                        </Box>
+                    </div>
+                </form>
                 <h4 style={{textAlign:"center", color:'white'}}>{message}</h4>
             </Paper>
         )
@@ -241,17 +279,19 @@ const Forgot = () => {
                 <WhiteTextTypography variant="p" textAlign="center" style={styles.font} >
                 </WhiteTextTypography>
             </Box>
-            <Box pt={5}>
-            <WhiteTextTypography align="center" style={styles.leftAlign}> 
-                CODE:
-            </WhiteTextTypography>
-            <input type="number"  style={styles.inputText} onChange={event => setVerify(event.target.value)} />
-            </Box>
-            <div style={styles.alignitems}>
-                <Box pt={3}>
-                <Button class="raise" onClick={doVerification}>SUBMIT</Button>
+            <form onSubmit={doVerification}>
+                <Box pt={5}>
+                <WhiteTextTypography align="center" style={styles.leftAlign}> 
+                    CODE:
+                </WhiteTextTypography>
+                <input style={styles.inputText} type="number" ref={(c) => verify = c} />
                 </Box>
-            </div>
+                <div style={styles.alignitems}>
+                    <Box pt={3}>
+                    <Button type="submit" class="raise" value="VERIFY" onClick={doVerification}>SUBMIT</Button>
+                    </Box>
+                </div>
+            </form>
             <h4 style={{textAlign:"center", color:'white'}}>{message}</h4>
         </Paper>
         )

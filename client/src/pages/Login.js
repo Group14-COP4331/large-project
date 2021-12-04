@@ -69,14 +69,23 @@ const WhiteTextTypography = withStyles({
 const Login = () => {
 
     localStorage.clear();
-    const [loginName, setName] = useState('')
-    const [loginPassword, setPassword] = useState('')
+    
+    /*const [loginName, setName] = useState('')
+    const [loginPassword, setPassword] = useState('')*/
     const [message, setMessage] = useState('')
 
+    var loginName;
+    var loginPassword;
+
     const doLogin = async event => {
+
+        var loginNameTemp = loginName.value;
+        var loginPasswordTemp = loginPassword.value;
+    
+
         event.preventDefault();
 
-        var obj = { email: loginName, password: loginPassword};
+        var obj = { email: loginNameTemp, password: loginPasswordTemp};
         var js = JSON.stringify(obj);
 
         try {
@@ -88,13 +97,13 @@ const Login = () => {
                 setMessage('User/Password combination incorrect');
             } 
             else {
-                var user = {username: res.username, id: res.id, email: loginName, verify: res.verified}
+                var user = {username: res.username, id: res.id, email: loginNameTemp, verify: res.verified}
                 localStorage.removeItem('user_data');
                 localStorage.setItem('user_data', JSON.stringify(user));
 
                 if(res.verified === false)
                 {
-                    obj = {email: loginName};
+                    obj = {email: loginNameTemp};
                     js = JSON.stringify(obj);
 
                     try {
@@ -124,22 +133,25 @@ const Login = () => {
                     WELCOME BACK
                 </WhiteTextTypography>
             </Box>
-            <Box pt={10}>
-            <WhiteTextTypography align="center" style={styles.leftAlign2}> 
-                EMAIL:
-            </WhiteTextTypography>
-            <input style={styles.inputText} onChange={event => setName(event.target.value)} /> {/* for the input text*/}
-            </Box>
-            <WhiteTextTypography align="center" style={styles.leftAlign} > 
-                PASSWORD:
-            </WhiteTextTypography>
-            <input  style={styles.inputText} type="password" onChange={event => setPassword(event.target.value)} />
-            <div/>
-            <div style={styles.alignitems}>
-                <Box pt={3}>
-                <Button class="raise" onClick={doLogin} >LOGIN</Button>
+            <form onSubmit={doLogin}>
+                <Box pt={10}>
+                <WhiteTextTypography align="center" style={styles.leftAlign2}> 
+                    EMAIL:
+                </WhiteTextTypography>
+                <input style={styles.inputText} type="text" ref={(c) => loginName = c} />
                 </Box>
-            </div>
+                <WhiteTextTypography align="center" style={styles.leftAlign} > 
+                    PASSWORD:
+                </WhiteTextTypography>
+                <input style={styles.inputText} type="password" id="loginPassword" ref={(c) => loginPassword = c} />
+                
+                <div/>
+                <div style={styles.alignitems}>
+                    <Box pt={3}>
+                        <Button type="submit" class="raise" value="LOGIN" onClick={doLogin}>LOGIN</Button>
+                    </Box>
+                </div>
+            </form>
             <Box pt={2}>
             <WhiteTextTypography className="forgotPSize" align="center" style={styles.font}>
                 <a href="/Forgot" style={{color: 'white' ,textDecoration: 'none'}}>FORGOT PASSWORD?</a>
@@ -148,6 +160,7 @@ const Login = () => {
             <h4 style={{textAlign:"center", color:'white'}}>{message}</h4>
         </Paper>
     )
+
 }
 
 
