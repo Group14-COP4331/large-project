@@ -1580,9 +1580,14 @@ function draw()
 
     switch(scene)
     {
-
         case"account":
             window.location.href = '/account';
+            image(bg1, paralax1, 0, 1940, window.innerHeight);
+            gameSpeed = 0;
+
+            textSize(100);
+            fill(255, 255, 255);
+            text("LOADING...", window.innerWidth / 2, window.innerHeight/2.5);
             break;
         case "leaderboard":
         
