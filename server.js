@@ -109,11 +109,11 @@ app.post('/api/changeUser', async (req, res, next)=>
     //inc: username, password, newUsername
     //out: error
     var error = "0";
-    const {username, password, newUsername} = req.body;
+    const {username, newUsername} = req.body;
     const db = client.db();
     if(newUsername != null)
     { 
-        const results = db.collection('Users').updateOne({username:username, password:password},
+        const results = db.collection('Users').updateOne({username:username},
                                         { $set: { username: newUsername }});
         if((await results).matchedCount == 0) error = '1';
     }
