@@ -6,6 +6,8 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Game from './pages/Game';
 import Verify from './pages/Verify';
+import Account from './pages/Account';
+import Changepassword from './pages/Changepassword';
 
 
 const App = () => {
@@ -19,6 +21,8 @@ const App = () => {
                 <Route path="/Signup" exact element={<Signup />} />
                 <Route path="/Verify" exact element={<Verify />} />
                 <Route path="/Game" exact element={<Game />} />
+                <Route path="/Account" exact element={<Account />} />
+                <Route path="/Changepassword" exact element={<Changepassword />} />
             </Routes>
         </Router>
     </div>

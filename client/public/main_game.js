@@ -1558,6 +1558,7 @@ class Button {
 var playbutton = new Button(0, 0, 300, 75, "PLAY", "game", 4);
 var storebutton = new Button(0, 90, 300, 75, "STORE", "store", 4);
 var baordbutton = new Button(0, 180, 300, 75, "< 1 2 3 >", "leaderboard", 4);
+var accountbutton = new Button(0, 270, 300, 75, "Account", "account", 4);
 var back = new Button(0, 180 - 240, 170, 70, "HOME", "menu", 2);
 var back2 = new Button(0, 280 - 240, 170, 70, "HOME", "menu", 2);
 var left = new Button(-150, -220, 50, 50, "<", "store", 2);
@@ -1579,6 +1580,10 @@ function draw()
 
     switch(scene)
     {
+
+        case"account":
+            window.location.href = '/account';
+            break;
         case "leaderboard":
         
         image(bg1, paralax1, 0, 1940, window.innerHeight);
@@ -1754,6 +1759,7 @@ function draw()
         playbutton.draw();
         storebutton.draw();
         baordbutton.draw();
+        accountbutton.draw();
         
         strokeWeight(3);
         stroke(255,255,255, 100);

@@ -131,15 +131,15 @@ const SignUp = () =>{
         {
             setMessage('');
 
-            var obj = { username: usernameTemp};
-            var js = JSON.stringify(obj);
+            obj = { username: usernameTemp};
+            js = JSON.stringify(obj);
 
             try {
                 const response = await fetch(buildPath('api/userExists'),
                     { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
-                var res = JSON.parse(await response.text());
+                var respo = JSON.parse(await response.text());
 
-                if(res.exists === 1)
+                if(respo.exists === 1)
                 {
                     setMessage('Username already exists.');
                     return;
