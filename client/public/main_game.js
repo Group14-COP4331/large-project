@@ -1583,6 +1583,8 @@ function draw()
         case"account":
             window.location.href = '/account';
             image(bg1, paralax1, 0, 1940, window.innerHeight);
+            image(bg1, paralax2, 0, 1940, window.innerHeight);
+            image(bg1, paralax3, 0, 1940, window.innerHeight);
             gameSpeed = 0;
 
             textSize(100);
