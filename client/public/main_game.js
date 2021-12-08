@@ -193,7 +193,7 @@ function topscoreUpdate()
             return;
         }
     }
-
+    leaderboard();
     game();
 }
 
