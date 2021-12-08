@@ -7,10 +7,11 @@
     "heroku": "^7.59.2",
     "mongodb": "^4.1.3",
     "nodemailer": "^6.7.2",
-    "nodemon": "^2.0.14"
+    "nodemon": "^2.0.14",
+    "serve-favicon": "^2.5.0"
   },
   "engines": {
-    "node":"^16.8.0"
+    "node": "^16.8.0"
   },
   "name": "server",
   "version": "1.0.0",

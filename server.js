@@ -1,9 +1,11 @@
 const path = require('path'); 
 const PORT = process.env.PORT || 5000;
 const express = require('express');
+const favicon = require('serve-favicon');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
+app.use(favicon(path.join(__dirname,'public','favicon.ico')));
 app.set('port', (process.env.PORT || 5000));
 app.use(cors());
 app.use(bodyParser.json());
