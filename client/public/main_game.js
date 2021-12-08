@@ -102,6 +102,22 @@ function leaderboard()
 
     orderedScores = scores;
 }
+function updateLeaderboard() {
+    const uleader = async event => {
+        try {
+
+            var obj = {};
+            var js = JSON.stringify(obj);
+            const response = await fetch(buildPath('api/populateLeaderboard'),
+                { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
+        }
+        catch (e) {
+            console.log(e.toString());
+            return;
+        }
+    }
+    uleader();
+}
 
 function coinUpdate()
 {
@@ -193,7 +209,7 @@ function topscoreUpdate()
             return;
         }
     }
-    leaderboard();
+    updateLeaderboard();
     game();
 }
 
