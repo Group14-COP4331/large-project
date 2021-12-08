@@ -1,6 +1,6 @@
 function buildPath(route)
 {
-    return 'https://dungeonride.herokuapp.com/' + route
+    return 'https://dungeonrun.herokuapp.com/' + route
 }
 
 var user = JSON.parse(localStorage.getItem('game_data'));
