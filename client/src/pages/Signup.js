@@ -73,7 +73,7 @@ const WhiteTextTypography = withStyles({
 
 function buildPath(route)
 {
-    return 'https://dungeonride.herokuapp.com/' + route
+    return 'https://dungeonrun.herokuapp.com/' + route
 }
 
 
